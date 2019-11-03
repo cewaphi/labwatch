@@ -11,8 +11,9 @@ import pymongo
 
 import sacred.optional as opt
 
-from sacred.commandline_options import QueueOption
-from sacred.observers.mongo import MongoObserver, MongoDbOption
+from sacred.commandline_options import queue_option as QueueOption
+from sacred.observers.mongo import MongoObserver
+from sacred.observers.mongo import mongo_db_option as MongoDbOption
 from sacred.utils import create_basic_stream_logger
 
 from labwatch.optimizers.random_search import RandomSearch
@@ -80,7 +81,7 @@ class LabAssistant(object):
         experiment : sacred.Experiment
             The (sacred) experiment that is going to be optimized.
         database_name : str
-            The name of the database where all information about the runs 
+            The name of the database where all information about the runs
             are saved.
         optimizer: object, optional
             Specifies which optimizer is used to suggest a new hyperparameter
@@ -193,7 +194,10 @@ class LabAssistant(object):
         final_config = dict(preset or {})
         # the fallback parameter is needed to fit the interface of a
         # ConfigScope, but here it is not supported.
-        assert not fallback, "{}".format(fallback)
+        try:
+            assert not fallback, "{}".format(fallback)
+        except AssertionError:
+            self.logger.info("Faced fallback.", exc_info=True)
         # ensure we have a search space definition
         if self.current_search_space is None:
             raise ValueError("LabAssistant search_space_wrapper called but "
@@ -238,7 +242,7 @@ class LabAssistant(object):
                 check_dependencies(ex_info['dependencies'],
                                    run['experiment']['dependencies'],
                                    self.version_policy)
-                
+
                 # set status to INITIALIZING to prevent others from
                 # running the same Run.
                 old_status = run['status']
@@ -253,7 +257,7 @@ class LabAssistant(object):
                     # which will not return the modified_count flag
                     break  # we've successfully acquired a run
         return run
-        
+
     # ########################## exported functions ###########################
 
     def set_database(self, database):
@@ -261,7 +265,7 @@ class LabAssistant(object):
         self._init_db()
         # we need to verify the search space again
         self._verify_and_init_search_space(self.current_search_space)
-    
+
     def update_optimizer(self):
         if self.db is None:
             self.logger.warn("Cannot update optimizer, reason: no database!")
@@ -293,7 +297,7 @@ class LabAssistant(object):
         self.last_checked = datetime.datetime.now()
         # collect all configs and their results
         info = [(self._clean_config(job["config"]), convert_result(job["result"]), job)
-                for job in completed_jobs if job["_id"] not in self.known_jobs]        
+                for job in completed_jobs if job["_id"] not in self.known_jobs]
         if len(info) > 0:
             configs, results, jobs = (list(x) for x in zip(*info))
             self.known_jobs |= {job['_id'] for job in jobs}
