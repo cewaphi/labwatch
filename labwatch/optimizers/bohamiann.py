@@ -8,7 +8,7 @@ import numpy as np
 from ConfigSpace import Configuration
 try:
     from robo.initial_design.init_random_uniform import init_random_uniform
-    from robo.models.bnn import BayesianNeuralNetwork
+    from robo.models.wrapper_bohamiann import WrapperBohamiann as BayesianNeuralNetwork
     from robo.maximizers.direct import Direct
     from robo.acquisition_functions.log_ei import LogEI
 except:
@@ -34,14 +34,7 @@ class Bohamiann(Optimizer):
         self.X = None
         self.y = None
 
-        self.model = BayesianNeuralNetwork(sampling_method="sghmc",
-                                           l_rate=np.sqrt(1e-4),
-                                           mdecay=0.05,
-                                           burn_in=burnin,
-                                           n_iters=n_iters,
-                                           precondition=True,
-                                           normalize_input=True,
-                                           normalize_output=True)
+        self.model = BayesianNeuralNetwork()
 
         self.acquisition_func = LogEI(self.model)
 
