@@ -6,7 +6,7 @@ import numpy as np
 try:
     from smac.scenario.scenario import Scenario
     from smac.tae.execute_ta_run import StatusType
-    from smac.facade import smac_facade
+    from smac.facade import smac_hpo_facade
 except:
     print("If you want to use LabwatchScenario you have to install the following dependencies:\n"
                      "SMAC (https://github.com/automl/SMAC3)")
@@ -73,7 +73,7 @@ class SMAC(Optimizer):
         self.scenario = Scenario({"run_obj": "quality",
                                   "cs": self.config_space,
                                   "deterministic": "true"})
-        self.solver = smac_facade.SMAC(scenario=self.scenario,
+        self.solver = smac_hpo_facade.SMAC4HPO(scenario=self.scenario,
                                        rng=self.rng)
 
     def suggest_configuration(self):
