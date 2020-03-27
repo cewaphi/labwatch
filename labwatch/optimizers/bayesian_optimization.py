@@ -12,6 +12,7 @@ try:
     from robo.acquisition_functions.log_ei import LogEI
     from robo.acquisition_functions.marginalization import MarginalizationGPMCMC
     from robo.initial_design.init_random_uniform import init_random_uniform
+    from robo.models.fmin import bayesian_optimization
 except ImportError as e:
     print("If you want to use BayesianOptimization you have to install the following dependencies:\n"
                      "https://github.com/automl/RoBO\n"
